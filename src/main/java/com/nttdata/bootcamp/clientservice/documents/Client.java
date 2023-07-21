@@ -21,5 +21,6 @@ public class Client {
 	private String createDate;
 	private String businessName;
 	private String ruc;
+	private String bankAccountNumber;
 	
 }
