@@ -1,12 +1,11 @@
 package com.nttdata.bootcamp.clientservice.dto;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-public class CustomerBankAccountDto {
+@NoArgsConstructor
+public class CustomerBankDto {
 
 	private String id;
 	private String typeCustomer;

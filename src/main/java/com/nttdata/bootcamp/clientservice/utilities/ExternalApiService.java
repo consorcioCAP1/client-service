@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nttdata.bootcamp.clientservice.dto.ClientDto;
 import com.nttdata.bootcamp.clientservice.dto.CreditBankAccountDto;
 import com.nttdata.bootcamp.clientservice.dto.CustomerBankAccountDto;
+import com.nttdata.bootcamp.clientservice.dto.CustomerBankDto;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -55,8 +56,8 @@ public class ExternalApiService {
 		LocalDateTime currentDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		CustomerBankAccountDto bankAccountDto = CustomerBankAccountDto.builder()
-				.dni(client.getDni())
-				.name(client.getName())
+				.numberDocument(client.getNumberDocument())
+				.clientName(client.getClientName())
 				.openingDate(currentDate.format(formatter))
 				.bankMovementLimit(client.getBankMovementLimit())
 				.typeCustomer(client.getTypeCustomer())
@@ -77,4 +78,21 @@ public class ExternalApiService {
 	        .bodyToMono(String.class)
 	        .subscribe();				
 	}
+
+	   //metodo para obtener document creditBankAccount
+	   public Flux<CreditBankAccountDto> getCreditAccountByNumberDocument(String numberDocument) {
+			WebClient webClient = WebClient.create(creditAccountBankUrl); 
+			 return webClient.get()
+		                .uri("/findByNumberDocument/{numberDocument}", numberDocument)
+		                .retrieve()
+		                .bodyToFlux(CreditBankAccountDto.class);
+		}
+
+	   public Flux<CustomerBankDto> getBankAccountByNumberDocument(String numberDocument) {
+			WebClient webClient = WebClient.create(customerBankAccountBankUrl); 
+			 return webClient.get()
+		                .uri("/findByNumberDocument/{numberDocument}", numberDocument)
+		                .retrieve()
+		                .bodyToFlux(CustomerBankDto.class);
+		}
 }

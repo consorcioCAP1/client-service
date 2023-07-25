@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.nttdata.bootcamp.clientservice.documents.Client;
 import com.nttdata.bootcamp.clientservice.dto.ClientDto;
+import com.nttdata.bootcamp.clientservice.dto.CustomerConsolidation;
 import com.nttdata.bootcamp.clientservice.service.ClientService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -86,5 +87,11 @@ public class ClientController {
 		        		.status(HttpStatus.BAD_REQUEST).body(error.getMessage());
 		        return Mono.just(responseEntity);
 		    });
-    }    
+    }
+
+    @GetMapping("/getConsolidateCustomerData/{numberDocument}")
+    public Flux<CustomerConsolidation> getConsolidateCustomerData(@PathVariable String numberDocument) {
+        return clientService.consolidateCustomerData(numberDocument);
+    }
+    
 }

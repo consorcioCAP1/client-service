@@ -15,12 +15,10 @@ public class Client {
 
 	@Id
 	private String id;
-	private String dni;
-	private String name;
+	private String clientName;
+	private String numberDocument;
 	private String typeClient;
 	private String createDate;
-	private String businessName;
-	private String ruc;
 	private String bankAccountNumber;
 	
 }

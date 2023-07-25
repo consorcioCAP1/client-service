@@ -1,11 +1,17 @@
 package com.nttdata.bootcamp.clientservice.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nttdata.bootcamp.clientservice.documents.Client;
 import com.nttdata.bootcamp.clientservice.dto.ClientDto;
+import com.nttdata.bootcamp.clientservice.dto.CreditBankAccountDto;
+import com.nttdata.bootcamp.clientservice.dto.CustomerBankAccountDto;
+import com.nttdata.bootcamp.clientservice.dto.CustomerBankDto;
+import com.nttdata.bootcamp.clientservice.dto.CustomerConsolidation;
 import com.nttdata.bootcamp.clientservice.repository.ClientRepository;
 import com.nttdata.bootcamp.clientservice.service.ClientService;
 import com.nttdata.bootcamp.clientservice.utilities.ExternalApiService;
@@ -58,16 +64,16 @@ public class ClientServiceImpl implements ClientService{
     @Override
     public Mono<Client> updateClientProfileVip(ClientDto clientDto){
 		 return repository.findById(clientDto.getId())
-            .flatMap(client -> externalApiService.getCreditAccountByDniType(client.getDni(), TYPE_CREDIT_ACCOUNT)
+            .flatMap(client -> externalApiService.getCreditAccountByDniType(client.getNumberDocument(),
+            			TYPE_CREDIT_ACCOUNT)
                 .switchIfEmpty(
                 		Mono.error(
                             	new RuntimeException("Cliente debe tener Tarjeta de crédito")))
                 .flatMap(creditAccount -> {
                    try {
-	            	    
 	            	    client.setTypeClient(TYPE_CLIENT_VIP);
-	            	    clientDto.setDni(client.getDni());
-	            	    clientDto.setName(client.getName());
+	            	    clientDto.setClientName(client.getClientName());
+	            	    clientDto.setNumberDocument(client.getNumberDocument());
 	            	    clientDto.setAccountType(TYPE_ACCOUNT_BANK_SAVING);
 	                	clientDto.setMinimumMonthlyAmount(MINIMUN_MONTHLY_AMOUNT);
 	                	clientDto.setTypeCustomer(TYPE_CLIENT_VIP);
@@ -86,24 +92,64 @@ public class ClientServiceImpl implements ClientService{
     //metodo para registrar cliente empresario MYPE
     @Override
     public Mono<Client> updateClientProfilePyme(ClientDto clientDto){
-    	 return repository.findById(clientDto.getId())
-            .flatMap(client -> externalApiService.getCreditAccountByRucType(client.getRuc(), TYPE_CREDIT_ACCOUNT)
-                .count()
-                .flatMap(countCreditAccount -> {
-                    if (countCreditAccount == 0) {
-                        return Mono.error(new RuntimeException("Cliente debe tener Tarjeta de crédito"));
-                    } else {
-                        return externalApiService.getBankAccountByRucType(client.getRuc(), TYPE_ACCOUNT_BANK_CURRENT)
-                    		.flatMap(countBankAccount -> {
-                            if (countBankAccount == 0) {
-                                return Mono.error(new RuntimeException("Cliente debe tener Cuenta Corriente"));
-                            } else {
-                                client.setTypeClient(TYPE_CLIENT_BUSINESS_PYME);
-                                return repository.save(client);
-                            }
-                        });
-                    }
-                })
-            );
+		 return repository.findById(clientDto.getId())
+	        .flatMap(client -> externalApiService.getCreditAccountByRucType(client.getNumberDocument(),
+	        					TYPE_CREDIT_ACCOUNT)
+	            .count()
+	            .flatMap(countCreditAccount -> {
+	                if (countCreditAccount == 0) {
+	                    return Mono.error(new RuntimeException("Cliente debe tener Tarjeta de crédito"));
+	                } else {
+	                    return externalApiService.getBankAccountByRucType(client.getBankAccountNumber(),
+	                    					TYPE_ACCOUNT_BANK_CURRENT)
+	                		.flatMap(countBankAccount -> {
+	                        if (countBankAccount == 0) {
+	                            return Mono.error(new RuntimeException("Cliente debe tener Cuenta Corriente"));
+	                        } else {
+	                            client.setTypeClient(TYPE_CLIENT_BUSINESS_PYME);
+	                            return repository.save(client);
+	                        }
+	                    });
+	                }
+	            })
+	        );
     }
+
+    //metodo para buscar el consolidado del cliente de sus productos
+    @Override
+    public Flux<CustomerConsolidation> consolidateCustomerData(String numberDocument){
+        Flux<CreditBankAccountDto> creditAccountFlux = externalApiService
+        							.getCreditAccountByNumberDocument(numberDocument);
+        Flux<CustomerBankDto> bankAccountFlux = externalApiService
+        							.getBankAccountByNumberDocument(numberDocument);
+        
+        //busco productos de credito
+        Flux<CustomerConsolidation> creditConsolidationFlux = creditAccountFlux
+                .map(credit -> CustomerConsolidation.builder()
+                        .typeCustomer(credit.getTypeCustomer())
+                        .clientId(credit.getClientId())
+                        .clientName(credit.getClientName())
+                        .numberDocument(credit.getNumberDocument())
+                        .openingDate(credit.getOpeningDate())
+                        .accountType(credit.getAccountType())
+                        .accountBalance(credit.getAccountBalance())
+                        .bankAccountNumber(credit.getBankAccountNumber())
+                        .build());
+
+        //busco productos de bancarios
+        Flux<CustomerConsolidation> bankConsolidationFlux = bankAccountFlux
+                .map(bankAccount -> CustomerConsolidation.builder()
+                        .typeCustomer(bankAccount.getTypeCustomer())
+                        .clientId(bankAccount.getClientId())
+                        .clientName(bankAccount.getClientName())
+                        .numberDocument(bankAccount.getNumberDocument())
+                        .openingDate(bankAccount.getOpeningDate())
+                        .accountType(bankAccount.getAccountType())
+                        .accountBalance(bankAccount.getAccountBalance())
+                        .bankAccountNumber(bankAccount.getBankAccountNumber())
+                        .build());
+        //los combino ambos en un mismo flux
+        return Flux.concat(creditConsolidationFlux, bankConsolidationFlux);
+    }
+
 }
