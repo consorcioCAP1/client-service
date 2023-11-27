@@ -20,6 +20,13 @@ public class ClientServiceApplication {
 		//esto es un commit nuevo
 		//para despues hacer el stash
 		//cambios en el commit 5  
+
+
+
+
+
+		//commt nuemro 6 y final de esta rama prueba 
+		//agregando varios cambios combinados de esté commit 
 	}
 
 }
