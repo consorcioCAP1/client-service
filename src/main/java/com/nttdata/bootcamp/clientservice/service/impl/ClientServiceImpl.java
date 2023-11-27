@@ -1,21 +1,16 @@
 package com.nttdata.bootcamp.clientservice.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nttdata.bootcamp.clientservice.documents.Client;
 import com.nttdata.bootcamp.clientservice.dto.ClientDto;
 import com.nttdata.bootcamp.clientservice.dto.CreditBankAccountDto;
-import com.nttdata.bootcamp.clientservice.dto.CustomerBankAccountDto;
 import com.nttdata.bootcamp.clientservice.dto.CustomerBankDto;
 import com.nttdata.bootcamp.clientservice.dto.CustomerConsolidation;
 import com.nttdata.bootcamp.clientservice.repository.ClientRepository;
 import com.nttdata.bootcamp.clientservice.service.ClientService;
 import com.nttdata.bootcamp.clientservice.utilities.ExternalApiService;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -63,7 +58,7 @@ public class ClientServiceImpl implements ClientService{
     //metodo para registrar cliente vip validando que tenga al menos una CREDITCARD
     @Override
     public Mono<Client> updateClientProfileVip(ClientDto clientDto){
-		 return repository.findById(clientDto.getId())
+		 return repository.findByNumberDocument(clientDto.getNumberDocument())
             .flatMap(client -> externalApiService.getCreditAccountByDniType(client.getNumberDocument(),
             			TYPE_CREDIT_ACCOUNT)
                 .switchIfEmpty(
@@ -92,7 +87,7 @@ public class ClientServiceImpl implements ClientService{
     //metodo para registrar cliente empresario MYPE
     @Override
     public Mono<Client> updateClientProfilePyme(ClientDto clientDto){
-		 return repository.findById(clientDto.getId())
+		 return repository.findByNumberDocument(clientDto.getNumberDocument())
 	        .flatMap(client -> externalApiService.getCreditAccountByRucType(client.getNumberDocument(),
 	        					TYPE_CREDIT_ACCOUNT)
 	            .count()
@@ -104,7 +99,7 @@ public class ClientServiceImpl implements ClientService{
 	                    					TYPE_ACCOUNT_BANK_CURRENT)
 	                		.flatMap(countBankAccount -> {
 	                        if (countBankAccount == 0) {
-	                            return Mono.error(new RuntimeException("Cliente debe tener Cuenta Corriente"));
+	                            return Mono.error(new RuntimeException("Cliente debe poseer un Cuenta Corriente"));
 	                        } else {
 	                            client.setTypeClient(TYPE_CLIENT_BUSINESS_PYME);
 	                            return repository.save(client);

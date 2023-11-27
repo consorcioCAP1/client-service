@@ -29,7 +29,7 @@ public class ClientController {
 	@Autowired
     private ClientService clientService;
 
-    @PostMapping("/create")
+    @PostMapping("/save")
     public Mono<Client> createClient(@RequestBody Client client) {
     	LocalDateTime currentDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

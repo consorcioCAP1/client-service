@@ -18,6 +18,17 @@
 		<sonar.host.url>http://localhost:9001</sonar.host.url>
 		<sonar-maven-plugin.version>3.9.1.2171</sonar-maven-plugin.version>
 	</properties>
+	<dependencyManagement>
+	  <dependencies>
+	    <dependency>
+	      <groupId>com.azure.spring</groupId>
+	      <artifactId>spring-cloud-azure-dependencies</artifactId>
+	      <version>5.4.0</version>
+	      <type>pom</type>
+	      <scope>import</scope>
+	    </dependency>
+	  </dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -46,6 +57,10 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
+        <dependency>
+		  <groupId>com.azure.spring</groupId>
+		  <artifactId>spring-cloud-azure-starter-keyvault</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

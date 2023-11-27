@@ -51,7 +51,7 @@ public class ExternalApiService {
 	                .bodyToMono(Long.class);
 	}
 
-	//metodo para el consumo de la api de creacion de deudas de credito
+	//metodo para el consumo de la api de creacion cuentas bancarias
 	public void createBankAccount(ClientDto client) throws JsonProcessingException {
 		LocalDateTime currentDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
