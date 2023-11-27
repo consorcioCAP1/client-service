@@ -14,19 +14,7 @@ public class ClientServiceApplication {
 		//comentario agregado para probar el primer commit 
 		//comentario numero 2 para probar el segundo commit 
 		//borramos una linea y agregamos el comentario numero 3
-		//cuarto comentario para 4 commits 
-		//con todo esto estamos prvando
-		//probando commit numero 5 con cambios en lineas 
-		//esto es un commit nuevo
-		//para despues hacer el stash
-		//cambios en el commit 5  
-
-
-
-
-
-		//commt nuemro 6 y final de esta rama prueba 
-		//agregando varios cambios combinados de esté commit 
+	
 	}
 
 }
