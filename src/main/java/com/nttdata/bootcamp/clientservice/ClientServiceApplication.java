@@ -13,7 +13,7 @@ public class ClientServiceApplication {
 
 		//comentario agregado para probar el primer commit 
 		//comentario numero 2 para probar el segundo commit 
-		//comentario del segundo commit
+		//borramos una linea y agregamos el comentario numero 3 
 	}
 
 }
